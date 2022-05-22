@@ -32,6 +32,8 @@ public class MenuController : MonoBehaviour
             }
             
         }
+        currentHP.transform.localScale = new Vector3(1,1,1);
+        playerController.scoreText.text = "Score: 0";
         Time.timeScale = 1.0f;
     }
     // Update is called once per frame

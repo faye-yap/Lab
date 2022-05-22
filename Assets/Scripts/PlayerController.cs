@@ -145,6 +145,7 @@ public class PlayerController : MonoBehaviour
 
     public void resetMario() {
         marioBody.transform.position = startingPos;
+        marioBody.velocity = Vector2.zero;
         score = 0;
     }
 }
