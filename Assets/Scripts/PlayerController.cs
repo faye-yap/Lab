@@ -148,4 +148,5 @@ public class PlayerController : MonoBehaviour
         marioBody.velocity = Vector2.zero;
         score = 0;
     }
+    
 }
