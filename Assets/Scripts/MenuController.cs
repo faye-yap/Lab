@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class MenuController : MonoBehaviour
@@ -33,7 +34,8 @@ public class MenuController : MonoBehaviour
             
         }
         currentHP.transform.localScale = new Vector3(1,1,1);
-        playerController.scoreText.text = "Score: 0";
+        playerController.scoreText.text = "Score: 0";        
+        playerController.started = true;
         Time.timeScale = 1.0f;
     }
     // Update is called once per frame
@@ -44,11 +46,8 @@ public class MenuController : MonoBehaviour
 
         if (playerController.health <= 0){
             
-            Time.timeScale = 0.0f;
-            showOverlay();
-            playerController.resetMario();
-            enemyController.resetEnemy();
-            playerController.health = playerController.maxHP;
+            Scene scene = SceneManager.GetActiveScene(); 
+            SceneManager.LoadScene(scene.name);
         }
     }
 

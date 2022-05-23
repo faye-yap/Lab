@@ -30,9 +30,7 @@ public class EnemyController : MonoBehaviour
         enemyBody.MovePosition(enemyBody.position + velocity * Time.fixedDeltaTime);
     }
 
-    public void resetEnemy(){
-        enemyBody.transform.position = new Vector3(originalX,transform.position.y,transform.position.z);
-    }
+    
     
     // Update is called once per frame
     void Update()
