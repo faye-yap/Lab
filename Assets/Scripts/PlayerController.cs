@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
+
 
 
 
@@ -32,6 +32,9 @@ public class PlayerController : MonoBehaviour
     public Vector2 movement;
     public bool jumpInput;
     public bool started;
+    private bool faceRightState;
+    private Animator marioAnimator;
+    private AudioSource marioAudio;
  
 
    
@@ -45,62 +48,51 @@ public class PlayerController : MonoBehaviour
         startingPos = marioBody.transform.position;
         menuController = GameObject.FindGameObjectWithTag("UI").GetComponent<MenuController>();
         maxHP = health;
+        marioAnimator = GetComponent<Animator>();
+        marioAudio = GetComponent<AudioSource>();
+
         
         
     }
 
-    void OnJump(){
-        Debug.Log("onjump");
-                 
-        
-        if (onGroundState && started){
-            marioBody.AddForce(Vector2.up * upSpeed,ForceMode2D.Impulse);
-            
-            if (marioBody.velocity.y > maxUpSpeed){
-                jumpInput = true;
-            }
-            onGroundState = false;   
-            countScoreState = true;
-        }
-    }
-
-    void OnMove(InputValue value) {
-        //Debug.Log("onmove");
-        movement = value.Get<Vector2>(); 
-        //Debug.Log(movement);      
-        if (movement.x < 0) {
-            marioSprite.flipX = true;
-        } else if (movement.x > 0){
-            marioSprite.flipX = false;
-        }
-
-        
-    }
+    
 
     
     void FixedUpdate() {
+
         
-    
-        if (Mathf.Abs(marioBody.velocity.x) < maxHorizontalSpeed){
-            marioBody.AddForce(movement*acceleration*marioBody.mass);
-            //print("go");
-        } else {
+        
+        float moveHorizontal = Input.GetAxis("Horizontal");
+        if (Input.GetKey("a") || Input.GetKey("d")){
+            if (Mathf.Abs(moveHorizontal) > 0){
+                Vector2 movement = new Vector2(moveHorizontal, 0);
+                marioBody.AddForce(movement * acceleration);
+                if (marioBody.velocity.x > maxHorizontalSpeed){
+                    marioBody.velocity = new Vector2(maxHorizontalSpeed,marioBody.velocity.y);
 
-            if (movement.x > 0){
-                marioBody.velocity = new Vector2(maxHorizontalSpeed,marioBody.velocity.y);
-            } else if (movement.x < 0){
-                marioBody.velocity = new Vector2(-maxHorizontalSpeed,marioBody.velocity.y);
+                } else if (marioBody.velocity.x < -maxHorizontalSpeed){
+                    marioBody.velocity = new Vector2(-maxHorizontalSpeed,marioBody.velocity.y);
+                }
             }
-            
+
+
         }
 
-        if (movement.x == 0){
-            marioBody.velocity = new Vector2(0,marioBody.velocity.y);
+        if (Input.GetKeyUp("a") || Input.GetKeyUp("d")){
+            // stop
+            marioBody.velocity = new Vector2(marioBody.velocity.x/5,marioBody.velocity.y);
+            marioAnimator.SetTrigger("onSkid");
+
         }
 
-        if (jumpInput){
-            marioBody.velocity = new Vector2(marioBody.velocity.x,maxUpSpeed);
-            jumpInput = false;
+        if (Input.GetKeyDown("space") && onGroundState){
+            marioBody.AddForce(Vector2.up * upSpeed, ForceMode2D.Impulse);
+            if(marioBody.velocity.y > maxUpSpeed){
+                marioBody.velocity = new Vector2(marioBody.velocity.x,maxUpSpeed);
+            }
+            onGroundState = false;
+            countScoreState = true;
+            marioAnimator.SetBool("onGround",onGroundState);
         }
         
 
@@ -114,6 +106,7 @@ public class PlayerController : MonoBehaviour
     void OnCollisionEnter2D(Collision2D c) {
         if (c.gameObject.CompareTag("Ground")) {
             onGroundState = true;
+            marioAnimator.SetBool("onGround",onGroundState);
             countScoreState = false;
             scoreText.text = "Score: " + score.ToString();
         }
@@ -142,11 +135,17 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {   
-        if(marioBody.transform.rotation.z != 0){
-            marioBody.transform.rotation = new Quaternion(0,0,0,0);
+        marioAnimator.SetFloat("xSpeed",Mathf.Abs(marioBody.velocity.x));
+        
+        if (Input.GetKeyDown("a") && faceRightState){
+            faceRightState = false;
+            marioSprite.flipX = true;
         }
 
-        
+        if (Input.GetKeyDown("d") && !faceRightState){
+            faceRightState = true;
+            marioSprite.flipX = false;
+        }
 
         if (!onGroundState && countScoreState){
             if (Mathf.Abs(transform.position.x - enemyLocation.position.x) < 0.5f){
@@ -157,6 +156,10 @@ public class PlayerController : MonoBehaviour
         }
 
         
+    }
+
+    void PlayJumpSound(){
+        marioAudio.PlayOneShot(marioAudio.clip);
     }
 
     
