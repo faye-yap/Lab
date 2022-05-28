@@ -50,6 +50,7 @@ public class PlayerController : MonoBehaviour
         maxHP = health;
         marioAnimator = GetComponent<Animator>();
         marioAudio = GetComponent<AudioSource>();
+        onGroundState = true;
 
         
         
@@ -86,13 +87,15 @@ public class PlayerController : MonoBehaviour
         }
 
         if (Input.GetKeyDown("space") && onGroundState){
+            onGroundState = false;
+            marioAnimator.SetBool("onGround",onGroundState);
             marioBody.AddForce(Vector2.up * upSpeed, ForceMode2D.Impulse);
             if(marioBody.velocity.y > maxUpSpeed){
                 marioBody.velocity = new Vector2(marioBody.velocity.x,maxUpSpeed);
             }
-            onGroundState = false;
+            
             countScoreState = true;
-            marioAnimator.SetBool("onGround",onGroundState);
+            
         }
         
 
@@ -104,7 +107,7 @@ public class PlayerController : MonoBehaviour
     }
 
     void OnCollisionEnter2D(Collision2D c) {
-        if (c.gameObject.CompareTag("Ground")) {
+        if (c.gameObject.CompareTag("Ground") || (c.gameObject.CompareTag("Pipe") && c.contacts[0].normal == Vector2.up)) {
             onGroundState = true;
             marioAnimator.SetBool("onGround",onGroundState);
             countScoreState = false;
@@ -120,6 +123,14 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+
+        if (c.gameObject.CompareTag("Obstacle")) {
+            onGroundState = true;
+            marioAnimator.SetBool("onGround",onGroundState);
+            
+        }
+
+        
 
     }
 
