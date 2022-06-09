@@ -8,6 +8,7 @@ public class CameraController : MonoBehaviour
 
     public Transform player;
     public Transform endLimit;
+    public Transform startLimit;
     private float offset;
     private float startX;
     private float endX;
@@ -18,8 +19,9 @@ public class CameraController : MonoBehaviour
         Vector3 bottomLeft = Camera.main.ViewportToWorldPoint(new Vector3(0,0,0));
         viewPortHalfWidth = Mathf.Abs(bottomLeft.x - this.transform.position.x);
         offset = this.transform.position.x - player.position.x;
-        startX = this.transform.position.x;
+        startX = startLimit.transform.position.x + viewPortHalfWidth;
         endX = endLimit.transform.position.x - viewPortHalfWidth;
+
     }
 
     // Update is called once per frame

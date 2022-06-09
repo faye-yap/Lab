@@ -35,7 +35,9 @@ public class PlayerController : MonoBehaviour
     private bool faceRightState;
     private Animator marioAnimator;
     private AudioSource marioAudio;
- 
+    private ParticleSystem dustCloud;
+    private Material baseMat;
+    public Material glowMat;
 
    
     
@@ -51,7 +53,8 @@ public class PlayerController : MonoBehaviour
         marioAnimator = GetComponent<Animator>();
         marioAudio = GetComponent<AudioSource>();
         onGroundState = true;
-
+        dustCloud = GameObject.FindGameObjectWithTag("Particle").GetComponent<ParticleSystem>();
+        baseMat = marioSprite.material;
         
         
     }
@@ -65,6 +68,7 @@ public class PlayerController : MonoBehaviour
         
         float moveHorizontal = Input.GetAxis("Horizontal");
         if (Input.GetKey("a") || Input.GetKey("d")){
+            marioSprite.material = glowMat;
             if (Mathf.Abs(moveHorizontal) > 0){
                 Vector2 movement = new Vector2(moveHorizontal, 0);
                 marioBody.AddForce(movement * acceleration);
@@ -81,12 +85,16 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetKeyUp("a") || Input.GetKeyUp("d")){
             // stop
+            if(onGroundState){
+                marioSprite.material = baseMat;
+            }
             marioBody.velocity = new Vector2(marioBody.velocity.x/5,marioBody.velocity.y);
             marioAnimator.SetTrigger("onSkid");
 
         }
 
         if (Input.GetKeyDown("space") && onGroundState){
+            marioSprite.material = glowMat;
             onGroundState = false;
             marioAnimator.SetBool("onGround",onGroundState);
             marioBody.AddForce(Vector2.up * upSpeed, ForceMode2D.Impulse);
@@ -108,10 +116,12 @@ public class PlayerController : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D c) {
         if (c.gameObject.CompareTag("Ground") || (c.gameObject.CompareTag("Pipe") && c.contacts[0].normal == Vector2.up)) {
+            marioSprite.material = baseMat;
             onGroundState = true;
             marioAnimator.SetBool("onGround",onGroundState);
             countScoreState = false;
             scoreText.text = "Score: " + score.ToString();
+            dustCloud.Play();
         }
 
         if (c.gameObject.CompareTag("Enemy")) {
