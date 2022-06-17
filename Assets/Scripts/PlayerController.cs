@@ -55,12 +55,15 @@ public class PlayerController : MonoBehaviour
         onGroundState = true;
         dustCloud = GameObject.FindGameObjectWithTag("Particle").GetComponent<ParticleSystem>();
         baseMat = marioSprite.material;
+        GameManager.OnPlayerDeath += PlayerDiesSequence;
         
         
     }
 
     
-
+    void PlayerDiesSequence() {
+        Debug.Log("mario ded");
+    }
     
     void FixedUpdate() {
 
@@ -120,7 +123,7 @@ public class PlayerController : MonoBehaviour
             onGroundState = true;
             marioAnimator.SetBool("onGround",onGroundState);
             countScoreState = false;
-            scoreText.text = "Score: " + score.ToString();
+            
             dustCloud.Play();
         }
 
@@ -144,14 +147,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    void OnTriggerEnter2D(Collider2D other){
-        if (other.gameObject.CompareTag("Enemy")){
-            //Debug.Log("Got hit lol");
-            health -= 34;
-            Debug.Log(health);
-            menuController.updateHPBar();
-        }
-    }
+    
 
     // Update is called once per frame
     void Update()
